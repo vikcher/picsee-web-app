@@ -1,0 +1,138 @@
+{# base template #}
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="https://getbootstrap.com/favicon.ico">
+
+    <title>Pic See</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="{{ url_for('static', filename='bootstrap.css')}}" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="{{ url_for('static', filename='album.css')}}" rel="stylesheet">
+  </head>
+
+  <body>
+
+    <header>
+      <div class="collapse bg-dark" id="navbarHeader">
+        <div class="container">
+          <div class="row">
+            <div class="col-sm-8 col-md-7 py-4">
+              <h4 class="text-white">About</h4>
+              <p class="text-muted">'PicSee' is an attempt at creating an enhanced image search technique which allows the user to be more descriptive while searching for images. The underlying system takes a sentence as an input from the user and fetches the result images in a more intelligent way by understanding the meaning or intent behind the sentence. Traditional image search systems leverage text around images or the captions assigned by humans to search images, PicSee is an attempt to improve search by understanding the images and serving the best results on search query.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="navbar navbar-dark bg-dark box-shadow">
+        <div class="container d-flex justify-content-between">
+          <a href="https://garagehackbox.azurewebsites.net/hackathons/1214/projects/74875" class="navbar-brand d-flex align-items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+            <strong>PicSee Hackathon Site</strong>
+          </a>
+          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarHeader" aria-controls="navbarHeader" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <main role="main">
+
+      <section class="jumbotron text-center">
+        <div class="container">
+          <h1 class="jumbotron-heading">Pic See</h1>
+          <p class="lead text-muted">Describe what you want to see.</p>
+          <p>
+            <input id="searchTextBox" type="text" name="searchTextBox" class="form-control" placeholder="eg: classroom of students working on their laptops">
+            <a href="#" id="goButton" class="btn btn-primary my-2">I'm feeling lucky!</a>
+            <!--<a href="#" class="btn btn-secondary my-2">Secondary action</a>-->
+          </p>
+        </div>
+        <br/><br/>
+        <div class="container">
+            <p class="lead text-muted">Upload an image
+            <form enctype="multipart/form-data" action="/0" method="post">
+            <input id="imageUploadBox" type="file" name="file" accept="*">
+            <input id="imageUploadSubmit" type="submit" value="submit"></form></p>
+        </div>
+      </section>
+
+
+      <div class="album py-5 bg-light">
+        <div class="container">
+          <div class="row" id="resultImgDisplay"></div>
+        </div>
+      </div>
+
+    </main>
+
+    <footer class="text-muted">
+      <div class="container">
+        <p class="float-right">
+          <a href="#">Back to top</a>
+        </p>
+      </div>
+    </footer>
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.3.1.min.js"></script>
+    <script>window.jQuery || document.write('<script src="../../assets/js/vendor/jquery-slim.min.js"><\/script>')</script>
+    <script src="{{ url_for('static', filename='popper.js')}}"></script>
+    <script src="{{ url_for('static', filename='bootstrap.js')}}"></script>
+    <script src="{{ url_for('static', filename='holder.js')}}"></script>
+    <script type=text/javascript>
+
+    $(function(){
+        $('#goButton').on('click', function(){
+            console.log($('#searchTextBox').val());
+            $.ajax({
+                url: '/goto',
+                type: 'POST',
+                data: {queryStr:$('#searchTextBox').val()},
+                success: function(data) {
+                    var imgJson = jQuery.parseJSON(data);
+                    //console.log(imgJson["0"]);
+                    $( "#resultImgDisplay" ).empty();
+                    for (var key in imgJson){
+                        var captionStr = imgJson[key]['caption'];
+                        captionStr = captionStr.substring(0, captionStr.indexOf("["));
+                        var newImg = 
+    "<div class=\"card mb-4 box-shadow\"><img class=\"card-img-top\" alt=\"Thumbnail [100%x225]\" style=\"height: 225px; width: 70%; display:block;\"src=\"data:image/png;base64, " + imgJson[key]['image'] + " \" data-holder-rendered=\"true\"><div class=\"card-body\"><p class=\"card-text\">Caption: " + captionStr + "</p><div class=\"d-flex justify-content-between align-items-center\"></div></div></div></div>";
+                        $( "#resultImgDisplay" ).append( newImg );
+                    }
+                },
+                error: function(error) {
+                    console.log(error);
+                }
+            });
+        });
+    });
+/*
+    $(function(){
+        $('#imageUploadSubmit').on('click', function(){
+            console.log($('#imageUploadBox').val());
+            $.ajax({
+                url: '/0',
+                type: 'POST',
+                data: "none",
+                success: function(data) {
+                    console.log(data);
+                },
+                error: function(error) {
+                    console.log(error);
+                }
+            });
+        });
+    });*/
+    </script>
+
+<svg xmlns="http://www.w3.org/2000/svg" width="348" height="225" viewBox="0 0 348 225" preserveAspectRatio="none" style="display: none; visibility: hidden; position: absolute; top: -100%; left: -100%;"><defs><style type="text/css"></style></defs><text x="0" y="17" style="font-weight:bold;font-size:17pt;font-family:Arial, Helvetica, Open Sans, sans-serif">Thumbnail</text></svg></body></html>
